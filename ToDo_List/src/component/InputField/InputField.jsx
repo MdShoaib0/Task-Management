@@ -4,7 +4,7 @@ import Buttons from '../CreateTask/Buttons';
 import Navigation from '../Navigation/Navigation';
 import { MdArrowDropDown } from "react-icons/md";
 
-const URL = "http://localhost:3000";
+const URL = "https://task-management-373m.onrender.com";
 
 function InputField() {
   const [title, setTitle] = useState("");
@@ -12,14 +12,22 @@ function InputField() {
   const [description, setDescription] = useState("");
   const [taskArray, setTaskArray] = useState([]);
   const [allTasks, setAllTasks] = useState([]);
-
-
+  const [isEditing, setIsEditing] = useState(false);
+  const [editId, setEditId] = useState(null);
 
   const Categories = [
-    { name: "All", color: "bg-emerald-600", activeColor: "bg-emerald-500" },
-    { name: "Normal", color: "bg-orange-600", activeColor: "bg-gray-500" },
-    { name: "Must", color: "bg-pink-600", activeColor: "bg-pink-500" },
-    { name: "Daily", color: "bg-purple-600", activeColor: "bg-purple-500" }
+    { name: "All", color: "bg-emerald-600"},
+    { name: "Normal", color: "bg-orange-600"},
+    { name: "Must", color: "bg-pink-600"},
+    { name: "Daily", color: "bg-purple-600"}
+  ];
+
+  const TaskColor = [
+    { start: "from-emerald-100", end: "to-emerald-300" },
+    { start: "from-rose-100", end: "to-rose-300" },
+    { start: "from-purple-100", end: "to-purple-300" },
+    { start: "from-sky-100", end: "to-sky-300" },
+    { start: "from-orange-100", end: "to-orange-300" },
   ]
 
   // Fetch tasks
@@ -27,34 +35,40 @@ function InputField() {
     try {
       const response = await fetch(URL);
       const data = await response.json();
-      setAllTasks(data);       // store full data
-      setTaskArray(data);      // display all tasks by default
+      setAllTasks(data);
+      setTaskArray(data);
     } catch (error) {
       console.error("Error fetching tasks:", error);
     }
   };
 
-
-  // Create task
-  const handleCreateTask = async (e) => {
+  // Create or Edit task
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!title.trim() || !category.trim() || !description.trim()) return;
-    try {
-      const response = await fetch(URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title, category, description }),
-      });
-      const data = await response.json();
-      console.log("Task created:", data);
-      setTitle("");
-      setCategory("");
-      setDescription("");
-      fetchTasks();
-    } catch (error) {
-      console.error("Error creating task:", error);
-    }
+    SendTaskToBackend();
   };
+
+  const SendTaskToBackend = async () => {
+  try {
+    const response = await fetch(URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title, category, description }),
+    });
+
+    const data = await response.json();
+    console.log(`${isEditing ? "Task updated:" : "Task created:"}`, data);
+    setTitle("");
+    setCategory("");
+    setDescription("");
+    setIsEditing(false);
+    setEditId(null);
+    fetchTasks();
+  } catch (error) {
+    console.error("Error sending task:", error);
+  }
+};
 
   // Delete task
   const handleDeleteTask = async (id) => {
@@ -71,6 +85,7 @@ function InputField() {
     }
   };
 
+  // Filter tasks
   const FilterTask = (categoryName) => {
     if (categoryName === "All") {
       setTaskArray(allTasks);
@@ -80,7 +95,6 @@ function InputField() {
     }
   };
 
-
   useEffect(() => {
     fetchTasks();
   }, []);
@@ -88,24 +102,26 @@ function InputField() {
   return (
     <div className='flex flex-col gap-16 py-12'>
       {/* Form */}
-      <form onSubmit={handleCreateTask} className='flex flex-col gap-6'>
-        <p className='text-xl text-pink-700 font-semibold'>Create your Task here..</p>
+      <form onSubmit={handleSubmit} className='flex flex-col gap-6 w-full md:w-xl'>
+        <p className='text-xl text-pink-700 font-semibold'>
+          {isEditing ? "Edit Task" : "Create your Task here..."}
+        </p>
 
         <input
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           type='text'
           placeholder='Task Title'
-          className='bg-white outline-none px-4 border-none h-14 rounded-lg shadow-lg'
+          className='bg-white outline-none px-4 border-none h-14 rounded-lg shadow-xl'
         />
 
-        <div className='relative w-full bg-white rounded-lg shadow-lg'>
+        <div className='relative w-full bg-white rounded-lg shadow-xl'>
           <select
             value={category}
             onChange={(e) => setCategory(e.target.value)}
             className='w-full h-14 px-4 pr-10 outline-none appearance-none bg-transparent'
           >
-            <option value="">Categories</option>
+            <option value="" disabled>Categories</option>
             <option value="All">ALL</option>
             <option value="Normal">Normal</option>
             <option value="Must">Must</option>
@@ -118,66 +134,74 @@ function InputField() {
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           placeholder='Task Description'
-          className='bg-white outline-none p-4 h-32 rounded-lg shadow-2xl mb-4'
+          className='bg-white outline-none p-4 h-32 rounded-xl shadow-xl mb-4'
         ></textarea>
 
-        <CategoryProps name="Add Task" color="bg-red-600" activeColor="bg-red-500" />
+        <CategoryProps name={!isEditing ? "Add Task" : "Update Task"} color="bg-red-600"/>
       </form>
 
-      {/* Static Components */}
-      <div className='w-full grid grid-cols-2 gap-7'>
+      {/* Filters */}
+      <div className='w-full grid grid-cols-2 md:grid-cols-4 gap-7'>
         {Categories.map((cat) => (
           <CategoryProps
             key={cat.name}
             name={cat.name}
             color={cat.color}
-            activeColor={cat.activeColor}
-            onClick={() => {
-              FilterTask(cat.name);
-            }}
+            onClick={() => FilterTask(cat.name)}
           />
         ))}
       </div>
+
+      {/* Navigation */}
       <Navigation />
 
       {/* Task List */}
-      <div className='w-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-12'>
+      <div className='w-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-12'>
         {taskArray.length > 0 ? taskArray.map((task, index) => (
           <div
             key={task._id || index}
-            className='flex flex-col gap-2 bg-gradient-to-b from-emerald-200 to-emerald-600 rounded-3xl shadow-2xl shadow-slate-400 p-6'
+            className={`flex flex-col gap-2 bg-gradient-to-b ${TaskColor[index % TaskColor.length].start} ${TaskColor[index % TaskColor.length].end} rounded-3xl shadow-2xl shadow-slate-400 p-6`}
           >
             <div className='flex justify-between'>
               <div className='flex flex-col gap-3'>
                 <div className='flex items-center gap-2'>
-                  <p className='w-9 h-9 flex justify-center items-center text-2xl font-bold rounded-full shadow bg-gradient-to-br from-blue-200 to-blue-600 text-white'>
+                  <p className='w-9 h-9 cursor-pointer active:scale-97 transition-all duration-200 flex justify-center items-center text-2xl font-bold rounded-full shadow shadow-black bg-gradient-to-br from-blue-300 to-blue-600 text-white'>
                     {index + 1}
                   </p>
-                  <p className='text-2xl font-bold'>{task.title}</p>
+                  <p className='text-2xl font-bold text-slate-900'>{task.title}</p>
                 </div>
-                <p className='w-fit font-medium bg-pink-600 px-3 py-1 rounded-full text-white shadow cursor-pointer active:scale-95'>
+                <p className='w-fit font-medium bg-gradient-to-b from-pink-400 to-pink-600 px-3.5 py-1 rounded-full text-white border-none outline-none shadow shadow-black cursor-pointer active:scale-95 transition-all duration-200'>
                   {task.category}
                 </p>
               </div>
 
               <div className='flex flex-col gap-1.5'>
-                <Buttons name="Complete" color="bg-emerald-600" active="bg-emerald-400" />
-                <Buttons name="Edit" color="bg-yellow-600" active="bg-yellow-400" />
+                <Buttons name="Complete" color="bg-green-600"/>
+                <Buttons
+                  name="Edit"
+                  color="bg-yellow-400"
+                  onClick={() => {
+                    setIsEditing(true);
+                    setEditId(task._id);
+                    setTitle(task.title);
+                    setCategory(task.category);
+                    setDescription(task.description);
+                    handleDeleteTask(task._id);
+                  }}
+                />
                 <Buttons
                   name="Delete"
                   color="bg-red-600"
-                  active="bg-red-400"
                   onClick={() => handleDeleteTask(task._id)}
                 />
               </div>
             </div>
 
-            <p>{task.description}</p>
+            <p className='text-slate-800'>{task.description}</p>
           </div>
         )) : (
-          <p className='text-center text-gray-600 col-span-full'>No tasks available</p>
-        )
-        }
+          <p className='text-center text-gray-700 col-span-full'>No tasks available</p>
+        )}
       </div>
     </div>
   );

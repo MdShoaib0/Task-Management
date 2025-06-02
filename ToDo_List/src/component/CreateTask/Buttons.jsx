@@ -9,7 +9,6 @@ function Buttons(props) {
         onClick={onClick}
         className={`w-21 h-8 font-medium rounded-lg outline-none border-none shadow shadow-black text-white cursor-pointer 
           ${color} 
-          active:${active}
           active:scale-97 
           transition-all duration-200`}
       >
