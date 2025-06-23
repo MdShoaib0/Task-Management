@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import CategoryProps from '../Categories/CategoryProps';
 import Buttons from '../CreateTask/Buttons';
 import Navigation from '../Navigation/Navigation';
-import { MdArrowDropDown } from "react-icons/md";
+import { MdArrowDropDown } from "react-icons/md"; 
 
 const URL = "https://task-management-373m.onrender.com";
 
@@ -24,10 +24,9 @@ function InputField() {
 
   const TaskColor = [
     { start: "from-emerald-100", end: "to-emerald-300" },
-    { start: "from-rose-100", end: "to-rose-300" },
-    { start: "from-purple-100", end: "to-purple-300" },
-    { start: "from-sky-100", end: "to-sky-300" },
-    { start: "from-orange-100", end: "to-orange-300" },
+    { start: "from-pink-200", end: "to-pink-400" },
+    { start: "from-sky-200", end: "to-sky-400" },
+    { start: "from-orange-300", end: "to-orange-600" },
   ]
 
   // Fetch tasks
@@ -112,10 +111,10 @@ function InputField() {
           onChange={(e) => setTitle(e.target.value)}
           type='text'
           placeholder='Task Title'
-          className='bg-white outline-none px-4 border-none h-14 rounded-lg shadow-xl'
+          className='bg-white outline-none px-4 border-none h-14 rounded-lg shadow'
         />
 
-        <div className='relative w-full bg-white rounded-lg shadow-xl'>
+        <div className='relative w-full bg-white rounded-lg shadow'>
           <select
             value={category}
             onChange={(e) => setCategory(e.target.value)}
@@ -134,7 +133,7 @@ function InputField() {
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           placeholder='Task Description'
-          className='bg-white outline-none p-4 h-32 rounded-xl shadow-xl mb-4'
+          className='bg-white outline-none p-4 h-32 rounded-xl shadow mb-4'
         ></textarea>
 
         <CategoryProps name={!isEditing ? "Add Task" : "Update Task"} color="bg-red-600"/>
@@ -170,16 +169,16 @@ function InputField() {
                   </p>
                   <p className='text-2xl font-bold text-slate-900'>{task.title}</p>
                 </div>
-                <p className='w-fit font-medium bg-gradient-to-b from-pink-400 to-pink-600 px-3.5 py-1 rounded-full text-white border-none outline-none shadow shadow-black cursor-pointer active:scale-95 transition-all duration-200'>
+                <p className='w-fit text-sm font-bold bg-gradient-to-br from-pink-400 to-pink-600 px-3.5 py-1 rounded-full text-white border-none outline-none shadow shadow-black cursor-pointer active:scale-95 transition-all duration-200'>
                   {task.category}
                 </p>
               </div>
 
               <div className='flex flex-col gap-1.5'>
-                <Buttons name="Complete" color="bg-green-600"/>
+                <Buttons name="Complete" color="bg-gradient-to-br from-green-400 to-green-600"/>
                 <Buttons
                   name="Edit"
-                  color="bg-yellow-400"
+                  color="bg-gradient-to-br from-yellow-400 to-yellow-600"
                   onClick={() => {
                     setIsEditing(true);
                     setEditId(task._id);
@@ -191,13 +190,13 @@ function InputField() {
                 />
                 <Buttons
                   name="Delete"
-                  color="bg-red-600"
+                  color="bg-gradient-to-br from-red-400 to-red-600"
                   onClick={() => handleDeleteTask(task._id)}
                 />
               </div>
             </div>
 
-            <p className='text-slate-800'>{task.description}</p>
+            <p className='text-slate-700'>{task.description}</p>
           </div>
         )) : (
           <p className='text-center text-gray-700 col-span-full'>No tasks available</p>
