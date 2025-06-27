@@ -1,19 +1,21 @@
 import { useState, useEffect } from 'react';
 import PrayerCard from '../Navigation/PrayerCard';
 
-function Prayer() {
-  const URL = "http://localhost:5000/prayer";
+function Prayer({ name = "Fazar" }) {
+  const URL = `https://task-management-373m.onrender.com/${name}`;
 
   const [days, setDay] = useState(0);
-  const [months, setMonth] = useState(10);
+  const [months, setMonth] = useState(0);
   const [years, setYear] = useState(0);
+  const [exists, setExists] = useState(false);
 
+  // Fetch prayer on component mount
   useEffect(() => {
-    ReadPrayer();
+    readPrayer();
+    // eslint-disable-next-line
   }, []);
 
-  function Calculate() {
-    const prayerName = "Fazar";
+  function calculate() {
     let newDay = days + 1;
     let newMonth = months;
     let newYear = years;
@@ -32,59 +34,69 @@ function Prayer() {
     setMonth(newMonth);
     setYear(newYear);
 
-    if (days === 0) {
-      CreatePrayer(prayerName, newDay, newMonth, newYear);
+    if (!exists) {
+      createPrayer(name, newDay, newMonth, newYear);
     } else {
-      UpdatePrayer(prayerName, newDay, newMonth, newYear);
+      updatePrayer(name, newDay, newMonth, newYear);
     }
   }
 
-  function CreatePrayer(name, day, month, year) {
+  function createPrayer(name, day, month, year) {
     fetch(URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, day, month, year })
+      body: JSON.stringify({ name, day, month, year }),
     })
-      .then(response => response.json())
-      .then(data => {
+      .then((res) => res.json())
+      .then((data) => {
         console.log("Prayer created:", data);
-        ReadPrayer();
+        setExists(true);
+        readPrayer();
       })
-      .catch(error => console.error("Failed to create prayer:", error));
+      .catch((err) => console.error("Failed to create prayer:", err));
   }
 
-  function UpdatePrayer(name, day, month, year) {
+  function updatePrayer(name, day, month, year) {
     fetch(URL, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, day, month, year })
+      body: JSON.stringify({ name, day, month, year }),
     })
-      .then(response => response.json())
-      .then(data => {
+      .then((res) => res.json())
+      .then((data) => {
         console.log("Prayer updated:", data);
-        ReadPrayer();
+        readPrayer();
       })
-      .catch(error => console.error("Failed to update prayer:", error));
+      .catch((err) => console.error("Failed to update prayer:", err));
   }
 
-  function ReadPrayer() {
-    return fetch(URL)
-      .then(response => response.json())
-      .then(data => {
-        if (data.day !== undefined) setDay(data.day);
-        if (data.month !== undefined) setMonth(data.month);
-        if (data.year !== undefined) setYear(data.year);
+  function readPrayer() {
+    fetch(URL)
+      .then((res) => {
+        if (!res.ok) throw new Error("No prayer found");
+        return res.json();
       })
-      .catch(error => console.error("Unable to fetch data from backend:", error));
+      .then((data) => {
+        if (data.day !== undefined) {
+          setDay(data.day);
+          setMonth(data.month);
+          setYear(data.year);
+          setExists(true);
+        }
+      })
+      .catch((err) => {
+        console.error("Unable to fetch prayer:", err);
+        setExists(false);
+      });
   }
 
   return (
     <PrayerCard
-      name="Fazar"
+      name={name}
       day={days}
       month={months}
       year={years}
-      onClick={Calculate}
+      onClick={calculate}
     />
   );
 }

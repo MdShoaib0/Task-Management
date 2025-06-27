@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import PrayerCard from '../Navigation/PrayerCard';
 
 function Prayer() {
-  const URL = "http://localhost:5000/prayer";
+  const URL = "https://task-management-373m.onrender.com/prayer";
 
   const [days, setDay] = useState(0);
   const [months, setMonth] = useState(0);
