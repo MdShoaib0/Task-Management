@@ -3,7 +3,7 @@ const gradients = {
   Duhar: 'from-yellow-300 via-yellow-500 to-orange-500',
   Ashar: 'from-green-300 via-green-500 to-teal-500',
   Magrib: 'from-purple-400 via-pink-500 to-red-500',
-  Esha: 'from-gray-600 via-gray-800 to-black',
+  Esha: 'from-purple-600 via-purple-700 to-purple-500',
 };
 
 // Reusable Prayer Card

@@ -1,10 +1,17 @@
 const mongoose = require('mongoose');
 
 const prayerSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  day: { type: Number, required: true },
-  month: { type: Number, required: true },
-  year: { type: Number, required: true }
+
+  name: {
+    type: String,
+    required: true
+  },
+  
+  day: {
+    type: Number,
+    required: true
+  },
+
 }, {
   timestamps: true
 });

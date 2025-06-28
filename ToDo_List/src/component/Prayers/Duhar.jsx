@@ -1,92 +1,78 @@
 import { useState, useEffect } from 'react';
 import PrayerCard from '../Navigation/PrayerCard';
 
-function Prayer() {
-  const URL = "https://task-management-373m.onrender.com/prayer";
+function Duhar() {
+  const name = "Duhar";
+  const URL = `http://localhost:5000/prayer`;
 
   const [days, setDay] = useState(0);
   const [months, setMonth] = useState(0);
   const [years, setYear] = useState(0);
+  const [exists, setExists] = useState(false);
 
   useEffect(() => {
-    ReadPrayer();
+    readPrayer();
   }, []);
 
-  function Calculate() {
-    const prayerName = "Duhar";
-    let newDay = days + 1;
-    let newMonth = months;
-    let newYear = years;
+  function calculate() {
+    createPrayer(name, days + 1);
+  }
 
-    if (newDay >= 30) {
-      newDay = 0;
-      newMonth += 1;
-    }
+  async function createPrayer(name, day) {
+    try {
+      const response = await fetch(URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ name, day })
+      });
 
-    if (newMonth >= 12) {
-      newMonth = 0;
-      newYear += 1;
-    }
+      if (!response.ok) {
+        throw new Error("Failed to create prayer entry");
+      }
 
-    setDay(newDay);
-    setMonth(newMonth);
-    setYear(newYear);
+      const data = await response.json();
+      console.log("Prayer created:", data);
 
-    if (days === 0) {
-      CreatePrayer(prayerName, newDay, newMonth, newYear);
-    } else {
-      UpdatePrayer(prayerName, newDay, newMonth, newYear);
+      await readPrayer();
+    } catch (error) {
+      console.error("Error creating prayer:", error);
     }
   }
 
-  function CreatePrayer(name, day, month, year) {
-    fetch(URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, day, month, year })
-    })
-      .then(response => response.json())
-      .then(data => {
-        console.log("Prayer created:", data);
-        ReadPrayer();
-      })
-      .catch(error => console.error("Failed to create prayer:", error));
-  }
+  async function readPrayer() {
+    try {
+      const response = await fetch(URL);
+      if (!response.ok) {
+        throw new Error("Failed to fetch Prayer details");
+      }
+      const data = await response.json();
+      
+      const prayer = data.find(p => p.name === name);
+      if (prayer) {
+        setDay(prayer.day);
+        setExists(true);
+        console.log("Prayer loaded:", prayer.day);
+      } else {
+        setDay(0);
+        setExists(false);
+      }
 
-  function UpdatePrayer(name, day, month, year) {
-    fetch(URL, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, day, month, year })
-    })
-      .then(response => response.json())
-      .then(data => {
-        console.log("Prayer updated:", data);
-        ReadPrayer();
-      })
-      .catch(error => console.error("Failed to update prayer:", error));
-  }
-
-  function ReadPrayer() {
-    return fetch(URL)
-      .then(response => response.json())
-      .then(data => {
-        if (data.day !== undefined) setDay(data.day);
-        if (data.month !== undefined) setMonth(data.month);
-        if (data.year !== undefined) setYear(data.year);
-      })
-      .catch(error => console.error("Unable to fetch data from backend:", error));
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   return (
     <PrayerCard
-      name="Duhar"
+      name={name}
       day={days}
       month={months}
       year={years}
-      onClick={Calculate}
+      onClick={calculate}
     />
   );
 }
 
-export default Prayer;
+export default Duhar;
