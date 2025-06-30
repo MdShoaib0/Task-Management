@@ -3,7 +3,7 @@ const gradients = {
   Duhar: 'from-yellow-300 via-yellow-500 to-orange-500',
   Ashar: 'from-green-300 via-green-500 to-teal-500',
   Magrib: 'from-purple-400 via-pink-500 to-red-500',
-  Esha: 'from-purple-600 via-purple-700 to-purple-500',
+  Esha: 'from-purple-500 via-purple-600 to-purple-500',
 };
 
 // Reusable Prayer Card
@@ -27,7 +27,7 @@ function PrayerCard({ name, day, month, year, onClick }) {
 
       <button
         onClick={() => onClick(name)}
-        className='mt-4 font-bold bg-white active:bg-slate-200 w-32 py-3 rounded-xl shadow-md active:scale-95 transition-all duration-300'
+        className='mt-4 cursor-pointer font-bold bg-white active:bg-slate-200 w-32 py-3 rounded-xl shadow-md active:scale-95 transition-all duration-300'
       >
         <span className="text font-bold text-gray-800">Days</span> <span className="text-rose-600">{day}</span>
       </button>
